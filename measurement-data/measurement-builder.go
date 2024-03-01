@@ -18,7 +18,7 @@ func main() {
 	}
 
 	fmt.Println("Creating entries...")
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20; i++ {
 		// get random city
 		city := cities[rand.IntN(len(cities))]
 
