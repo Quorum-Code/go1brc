@@ -12,8 +12,8 @@ type Entry struct {
 	city      string
 	totaltemp int64
 	count     int
-	minTemp   int
-	maxTemp   int
+	minTemp   float32
+	maxTemp   float32
 	avg       float32
 }
 
@@ -22,6 +22,12 @@ func main() {
 }
 
 func get_average() {
+	fmt.Println("Starting")
+
+	// map
+	m := make(map[string]*Entry)
+	addEntry := buildLogFunc(m)
+
 	// open file
 	f, err := os.Open("./measurements.txt")
 	if err != nil {
@@ -29,22 +35,21 @@ func get_average() {
 		return
 	}
 
-	// map
-	m := make(map[string]int64)
-
 	// read through all rows and print data
 	buf := make([]byte, 1024)
 	end := ""
 	defer f.Close()
+
+	// iterate file contents through buf
 	for {
 		n, err := f.Read(buf)
-
 		if err == io.EOF {
 			break
 		} else if err != nil {
 			fmt.Println(err)
 			break
 		} else if n > 0 {
+			// content to process
 			rows := strings.Split(string(buf[:n]), "\n")
 			i := 0
 
@@ -63,16 +68,8 @@ func get_average() {
 						fmt.Println(err)
 						return
 					}
-					temp := int64(tempFloat * 10)
-
-					_, ok := m[city]
-					if ok {
-						m[city] += temp
-					} else {
-						m[city] = temp
-					}
+					addEntry(city, tempFloat)
 				}
-
 				end = ""
 			}
 
@@ -87,22 +84,53 @@ func get_average() {
 						fmt.Println(err)
 						return
 					}
-
 					// Check if key already exists
-					_, ok := m[city]
-					if ok {
-						m[city] += int64(tempFloat * 10)
-					} else {
-						m[city] = int64(tempFloat * 10)
-					}
+					addEntry(city, tempFloat)
 				}
 			}
-			end = rows[len(rows)-1]
+
+			if len(rows) > 1 {
+				end = rows[len(rows)-1]
+			}
 		}
 	}
 
 	// print all entries in dict
-	for k, v := range m {
-		fmt.Printf("%s: %d\n", k, v)
+	totalCount := 0
+	for k := range m {
+		entry := m[k]
+		entry.avg = float32(entry.totaltemp) / float32(entry.count) / 10.0
+		fmt.Printf("City: %s \tAvg: %.1f \tMin: %.1f \tMax: %.1f \tCount:%d\n", entry.city, entry.avg, entry.minTemp, entry.maxTemp, entry.count)
+		totalCount += entry.count
+	}
+	fmt.Printf("Total Count: %d\n", totalCount)
+}
+
+func buildLogFunc(m map[string]*Entry) func(string, float64) {
+	return func(city string, temperature float64) {
+		entry, ok := m[city]
+
+		if !ok {
+			fmt.Println("Generating entry")
+			m[city] = &Entry{
+				city:      city,
+				totaltemp: 0,
+				count:     0,
+				minTemp:   float32(temperature),
+				maxTemp:   float32(temperature),
+				avg:       0.0,
+			}
+			entry = m[city]
+		}
+		entry.totaltemp = entry.totaltemp + int64(temperature*10)
+		entry.count++
+
+		if entry.minTemp > float32(temperature) {
+			entry.minTemp = float32(temperature)
+		}
+
+		if entry.maxTemp < float32(temperature) {
+			entry.maxTemp = float32(temperature)
+		}
 	}
 }
