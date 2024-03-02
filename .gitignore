@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Data file that can be over 10GB
+measurements.txt
+./measurements-data/measurements.txt
+
 # User-specific files
 *.rsuser
 *.suo
