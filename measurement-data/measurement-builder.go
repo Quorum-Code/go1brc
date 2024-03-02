@@ -18,12 +18,12 @@ func main() {
 	}
 
 	fmt.Println("Creating entries...")
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 10000; i++ {
 		// get random city
 		city := cities[rand.IntN(len(cities))]
 
 		// get random val
-		temp := rand.Float64()*200 - 99.9
+		temp := rand.Float64()*199.9 - 100.0
 
 		_, err := f.WriteString(fmt.Sprintf("%v:%.1f\n", city, temp))
 		if err != nil {
