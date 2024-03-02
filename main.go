@@ -19,10 +19,10 @@ type Entry struct {
 }
 
 func main() {
-	get_average()
+	simple_get_average()
 }
 
-func get_average() {
+func simple_get_average() {
 	start := time.Now()
 	fmt.Println("Starting")
 
