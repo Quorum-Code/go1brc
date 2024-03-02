@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Entry struct {
@@ -22,6 +23,7 @@ func main() {
 }
 
 func get_average() {
+	start := time.Now()
 	fmt.Println("Starting")
 
 	// map
@@ -104,6 +106,7 @@ func get_average() {
 		totalCount += entry.count
 	}
 	fmt.Printf("Total Count: %d\n", totalCount)
+	fmt.Printf("Total time: %s", time.Since(start))
 }
 
 func buildLogFunc(m map[string]*Entry) func(string, float64) {
