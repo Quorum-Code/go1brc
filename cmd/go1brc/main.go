@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"src/workers"
 	"strconv"
 	"strings"
 	"time"
@@ -19,23 +20,13 @@ type Entry struct {
 }
 
 func main() {
-	simple_get_average()
+	workers.Worker_approach()
 }
 
-func thread_test() {
+func worker_pool_approach() {
 	start := time.Now()
 
 	fmt.Printf("Elapsed time: %s", time.Since(start))
-}
-
-func thread_base() {
-	start := time.Now()
-
-	fmt.Printf("Elapsed time: %s", time.Since(start))
-}
-
-func start_thread() {
-
 }
 
 // Time to process 1B rows in 2m30.2183342s
@@ -45,7 +36,7 @@ func simple_get_average() {
 
 	// map
 	m := make(map[string]*Entry)
-	addEntry := buildLogFunc(m)
+	addEntry := buildEntryFunc(m)
 
 	// open file
 	f, err := os.Open("./measurements.txt")
@@ -77,35 +68,13 @@ func simple_get_average() {
 				i = 1
 
 				// process
-				split := strings.Split(end+rows[0], ":")
-
-				if len(split) == 2 {
-					city := split[0]
-
-					tempFloat, err := strconv.ParseFloat(split[1], 64)
-					if err != nil {
-						fmt.Println(err)
-						return
-					}
-					addEntry(city, tempFloat)
-				}
+				addEntry(end + rows[0])
 				end = ""
 			}
 
 			// Iterate through all rows except last
 			for ; i < len(rows)-1; i++ {
-				row := strings.Split(rows[i], ":")
-
-				city := row[0]
-				if len(row) > 1 {
-					tempFloat, err := strconv.ParseFloat(row[1], 64)
-					if err != nil {
-						fmt.Println(err)
-						return
-					}
-					// Check if key already exists
-					addEntry(city, tempFloat)
-				}
+				addEntry(rows[i])
 			}
 
 			if len(rows) > 1 {
@@ -126,12 +95,20 @@ func simple_get_average() {
 	fmt.Printf("Total time: %s", time.Since(start))
 }
 
-func buildLogFunc(m map[string]*Entry) func(string, float64) {
-	return func(city string, temperature float64) {
+func buildEntryFunc(m map[string]*Entry) func(string) {
+	return func(row string) {
+		split := strings.Split(row, ":")
+		city := ""
+		temperature, err := strconv.ParseFloat(split[1], 64)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
 		entry, ok := m[city]
 
 		if !ok {
-			fmt.Println("Generating entry")
+			fmt.Println("Generating new city entry")
 			m[city] = &Entry{
 				city:      city,
 				totaltemp: 0,
