@@ -22,6 +22,23 @@ func main() {
 	simple_get_average()
 }
 
+func thread_test() {
+	start := time.Now()
+
+	fmt.Printf("Elapsed time: %s", time.Since(start))
+}
+
+func thread_base() {
+	start := time.Now()
+
+	fmt.Printf("Elapsed time: %s", time.Since(start))
+}
+
+func start_thread() {
+
+}
+
+// Time to process 1B rows in 2m30.2183342s
 func simple_get_average() {
 	start := time.Now()
 	fmt.Println("Starting")
