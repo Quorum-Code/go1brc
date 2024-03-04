@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
+	"runtime/pprof"
 	"src/workers"
 	"strconv"
 	"strings"
+	"testing"
 	"time"
 )
 
@@ -20,17 +23,46 @@ type Entry struct {
 }
 
 func main() {
-	workers.Worker_approach()
+	p, err := os.Create("sequential.prof")
+	if err != nil {
+		return
+	}
+	pprof.StartCPUProfile(p)
+	defer pprof.StopCPUProfile()
+
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Println("[1] Sequential Approach")
+		fmt.Println("[2] Worker Pool Approach")
+		fmt.Println("[Q] Quit")
+		fmt.Print("Use: ")
+		scanner.Scan()
+		input := scanner.Text()
+
+		if input == "1" {
+			SimpleAverage()
+		} else if input == "2" {
+			workers.Worker_map_approach()
+		} else if input == "Q" {
+			break
+		} else {
+			fmt.Printf("Error: '%s' is invalid input...", input)
+		}
+	}
 }
 
-func worker_pool_approach() {
-	start := time.Now()
+func TestSimpleAverage(b *testing.T) {
+	SimpleAverage()
+}
 
-	fmt.Printf("Elapsed time: %s", time.Since(start))
+func BenchmarkWorkers(b *testing.B) {
+	workers.Worker_map_approach()
 }
 
 // Time to process 1B rows in 2m30.2183342s
-func simple_get_average() {
+//
+//lint:ignore U1000 old approach
+func SimpleAverage() {
 	start := time.Now()
 	fmt.Println("Starting")
 

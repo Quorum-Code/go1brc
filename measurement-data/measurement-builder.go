@@ -44,7 +44,7 @@ func main() {
 		city := cities[rand.IntN(len(cities))]
 
 		// get random val
-		temp := rand.Float64()*199.9 - 100.0
+		temp := rand.Float64()*198.99 - 99.9
 
 		_, err := f.WriteString(fmt.Sprintf("%v:%.1f\n", city, temp))
 		if err != nil {
