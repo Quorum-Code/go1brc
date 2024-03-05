@@ -59,9 +59,10 @@ func chunkWorker(chunks <-chan []string, m map[string](*Entry), wg *sync.WaitGro
 	}
 }
 
-// Elapsed time: 35.8378618s (4096 byte buffer, 16 workers)
+// Elapsed time: 31.6541507s (4096 byte buffer, 16 workers)
 func WorkerMapApproach() {
 	start := time.Now()
+	fmt.Println("Starting")
 
 	// open file
 	f, err := os.Open("./measurements.txt")
@@ -120,6 +121,7 @@ func WorkerMapApproach() {
 	wg.Wait()
 
 	// Aggregate worker information
+	fmt.Println("Aggregating workers...")
 	for i := 1; i < numWorkers; i++ {
 		for k, v := range maps[i] {
 			entry, ok := maps[0][k]

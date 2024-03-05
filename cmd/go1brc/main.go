@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime/pprof"
 	"src/workers"
 	"strconv"
 	"strings"
@@ -23,12 +22,12 @@ type Entry struct {
 }
 
 func main() {
-	p, err := os.Create("sequential.prof")
-	if err != nil {
-		return
-	}
-	pprof.StartCPUProfile(p)
-	defer pprof.StopCPUProfile()
+	// p, err := os.Create("sequential.prof")
+	// if err != nil {
+	// 	return
+	// }
+	// pprof.StartCPUProfile(p)
+	// defer pprof.StopCPUProfile()
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
@@ -60,8 +59,6 @@ func BenchmarkWorkers(b *testing.B) {
 }
 
 // Time to process 1B rows in 2m30.2183342s
-//
-//lint:ignore U1000 old approach
 func SimpleAverage() {
 	start := time.Now()
 	fmt.Println("Starting")
