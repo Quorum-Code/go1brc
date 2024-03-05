@@ -124,7 +124,7 @@ func SimpleAverage() {
 		totalCount += entry.count
 	}
 	fmt.Printf("Total Count: %d\n", totalCount)
-	fmt.Printf("Total time: %s", time.Since(start))
+	fmt.Printf("Total time: %s\n", time.Since(start))
 }
 
 func buildEntryFunc(m map[string]*Entry) func(string) {
