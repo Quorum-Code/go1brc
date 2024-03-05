@@ -42,7 +42,7 @@ func main() {
 		if input == "1" {
 			SimpleAverage()
 		} else if input == "2" {
-			workers.Worker_map_approach()
+			workers.WorkerMapApproach()
 		} else if input == "Q" {
 			break
 		} else {
@@ -56,7 +56,7 @@ func TestSimpleAverage(b *testing.T) {
 }
 
 func BenchmarkWorkers(b *testing.B) {
-	workers.Worker_map_approach()
+	workers.WorkerMapApproach()
 }
 
 // Time to process 1B rows in 2m30.2183342s

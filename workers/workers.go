@@ -11,13 +11,13 @@ import (
 )
 
 type Entry struct {
-	totaltemp int64
+	totalTemp int64
 	count     int
-	mintemp   float32
-	maxtemp   float32
+	minTemp   float32
+	maxTemp   float32
 }
 
-func chunk_worker(chunks <-chan []string, m map[string](*Entry), wg *sync.WaitGroup) {
+func chunkWorker(chunks <-chan []string, m map[string](*Entry), wg *sync.WaitGroup) {
 	defer wg.Done()
 	for chunk := range chunks {
 		for i := 0; i < len(chunk)-1; i++ {
@@ -34,25 +34,25 @@ func chunk_worker(chunks <-chan []string, m map[string](*Entry), wg *sync.WaitGr
 				entry, ok := m[city]
 				if !ok {
 					new_entry := Entry{
-						totaltemp: 0,
+						totalTemp: 0,
 						count:     0,
-						mintemp:   1000,
-						maxtemp:   -1000,
+						minTemp:   1000,
+						maxTemp:   -1000,
 					}
 					m[city] = &new_entry
 					entry = m[city]
 				}
 
-				entry.totaltemp += int64(temp * 10.0)
+				entry.totalTemp += int64(temp * 10.0)
 
 				entry.count++
 
-				if entry.mintemp > float32(temp) {
-					entry.mintemp = float32(temp)
+				if entry.minTemp > float32(temp) {
+					entry.minTemp = float32(temp)
 				}
 
-				if entry.maxtemp < float32(temp) {
-					entry.maxtemp = float32(temp)
+				if entry.maxTemp < float32(temp) {
+					entry.maxTemp = float32(temp)
 				}
 			}
 		}
@@ -60,7 +60,7 @@ func chunk_worker(chunks <-chan []string, m map[string](*Entry), wg *sync.WaitGr
 }
 
 // Elapsed time: 35.8378618s (4096 byte buffer, 16 workers)
-func Worker_map_approach() {
+func WorkerMapApproach() {
 	start := time.Now()
 
 	// open file
@@ -75,17 +75,17 @@ func Worker_map_approach() {
 	end := ""
 
 	// Best return on investment seems to be about 16 workers
-	const numworkers = 16
+	const numWorkers = 16
 
 	chunks := make(chan []string)
-	maps := make([]map[string]*Entry, numworkers)
+	maps := make([]map[string]*Entry, numWorkers)
 	var wg sync.WaitGroup
 
 	// startup workers
-	for i := 0; i < numworkers; i++ {
+	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
 		maps[i] = make(map[string]*Entry)
-		go chunk_worker(chunks, maps[i], &wg)
+		go chunkWorker(chunks, maps[i], &wg)
 	}
 
 	// iterate file contents through buf
@@ -120,21 +120,21 @@ func Worker_map_approach() {
 	wg.Wait()
 
 	// Aggregate worker information
-	for i := 1; i < numworkers; i++ {
+	for i := 1; i < numWorkers; i++ {
 		for k, v := range maps[i] {
 			entry, ok := maps[0][k]
 			if !ok {
 				*entry = *v
 			} else {
 				entry.count += v.count
-				entry.totaltemp += v.totaltemp
+				entry.totalTemp += v.totalTemp
 
-				if entry.mintemp > v.mintemp {
-					entry.mintemp = v.mintemp
+				if entry.minTemp > v.minTemp {
+					entry.minTemp = v.minTemp
 				}
 
-				if entry.maxtemp < v.maxtemp {
-					entry.maxtemp = v.maxtemp
+				if entry.maxTemp < v.maxTemp {
+					entry.maxTemp = v.maxTemp
 				}
 			}
 		}
@@ -146,8 +146,8 @@ func Worker_map_approach() {
 	}
 	totalCount := int64(0)
 	for k, v := range maps[0] {
-		avg := float64(v.totaltemp / int64(v.count) / 10)
-		fmt.Printf("%s Avg: %.1f Count: %d Min: %.1f, Max: %.1f\n", k, avg, v.count, v.mintemp, v.maxtemp)
+		avg := float64(v.totalTemp / int64(v.count) / 10)
+		fmt.Printf("%s Avg: %.1f Count: %d Min: %.1f, Max: %.1f\n", k, avg, v.count, v.minTemp, v.maxTemp)
 		totalCount += int64(v.count)
 	}
 
